@@ -15,6 +15,6 @@ def init_db():
     if _mongo_client is None:
         # Initialize the MongoDB client only once
         _mongo_client = motor.motor_asyncio.AsyncIOMotorClient(config.mongo_url)
-        _db = _mongo_client.get_database("pdfChat")
+        _db = _mongo_client.get_database("test")
 
     return  _db

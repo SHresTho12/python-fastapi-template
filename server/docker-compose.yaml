@@ -1,11 +1,10 @@
-version: "3.8"
 services:
   server:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: bl_agent_server
-    image: bl_agent/server:01
+    container_name: backend
+    image: server:01
     ports:
       - "8000:8000"
     env_file:
@@ -20,14 +19,29 @@ services:
     ports:
       - "27017:27017"
     env_file:
-      - .env
+      - path: .env
+        required: true
     volumes:
       - ../mongo:/data/db:rw
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
-      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
-
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+  postgres:
+    image: postgres
+    container_name: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    env_file:
+      - path: .env
+        required: true
+    volumes:
+      - ../postgres:/var/lib/postgresql/data:rw
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
   mongo-express:
     image: mongo-express
     depends_on:
@@ -35,17 +49,31 @@ services:
     restart: always
     ports:
       - "8081:8081"
+    env_file:
+      - path: .env
+        required: true
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongo:27017/
+      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongo:27017/?authSource=admin
       ME_CONFIG_BASICAUTH: "false"
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    ports:
+      - "5050:80"
+    env_file:
+      - path: .env
+        required: true
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    depends_on:
+      - postgres
 
-  # chroma:
-  #   image: chromadb/chroma
-  #   container_name: bl_agent_chat_chroma
-  #   ports:
-  #     - "8001:8000"
-  #   restart: unless-stopped
-  #   volumes:
-  #     - ./chroma:/chroma/chroma:rw
+volumes:
+  postgres-data:
+    driver: local
+  pgadmin-data:
+    driver: local

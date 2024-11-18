@@ -46,6 +46,8 @@ class Config(BaseSettings):
     aws_region: str
     origins: List[HttpUrl] = Field(default_factory=list)
 
+    postgres_url: str
+    
     refresh_token_expire: int
     access_token_expire: int
 

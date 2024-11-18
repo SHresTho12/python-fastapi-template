@@ -5,7 +5,6 @@ from fastapi import HTTPException
 from pymongo import errors
 
 from models.user_model import AgentResponse, AgentListResponse, AdminListResponse, AdminResponse
-from repositories.history_collection import HistoryRepo
 from repositories.user_repo import AdminRepo, AgentRepo
 from utils.user_utils import UserUtils
 
@@ -73,9 +72,6 @@ class UserService:
             agents=agent_responses
         )
 
-    async def get_conversations(self, user_id: str):
-        # Fetch all conversations for a user
-        conversations = await self.history_repo.get_all(query={"user_id": user_id})
 
     async def get_admins(self, limit: int, offset: int, search_string: str = None) -> AdminListResponse:
         query = (
