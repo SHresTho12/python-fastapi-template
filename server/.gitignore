@@ -1,0 +1,10 @@
+../.env
+__pycache__/
+venv/
+../venv
+data/
+chroma/
+mongo/
+.env
+../mongo/
+.idea/
